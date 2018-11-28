@@ -2,7 +2,7 @@
 
 A simple parser for propositional logic, implemented as required for the 
 COMP0009 module of the Mathematical Computation MEng course at University 
-College London, written in ~100 lines of C.  
+College London.
 
 The assignment is to parse a string according to the (simplified) syntax of 
 propositional logic, and output:  
