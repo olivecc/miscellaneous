@@ -1,4 +1,4 @@
-#Propositional Parser
+# Propositional Parser
 
 A simple parser for propositional logic, implemented as required for the 
 COMP0009 module of the Mathematical Computation MEng course at University 
