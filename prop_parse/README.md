@@ -25,5 +25,7 @@ The solution is required to declare a function with signature
 type that *g* represents, returns a value of 0 for an invalid formula, 1 for a 
 proposition, 2 for a negation, and 3 for a binary formula.  
 
-The solution is presented in the file 'prop\_parse.c', and a test driver 
-program is supplied in 'test.c'.
+Two different solutions are presented in the files 'prop\_parse.c' and 
+'prop\_parse\_unrolled.c', representing a recursive solution and the 'unrolled' 
+iterative version of it respectively, and a test driver program is supplied in 
+'test.c'. 
