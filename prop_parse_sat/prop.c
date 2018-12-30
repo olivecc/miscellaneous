@@ -38,6 +38,9 @@ prop_fm_type formula_type(char first_char)
 
 size_t find_binary_connective(const char* fm_str, size_t fm_len)
 {
+    //could be implemented using a signed type and incrementing/decrementing
+    //for open/closed parentheses respectively, but this solution scales
+    //better with larger formula sizes.
     size_t opened_count = 0;
     size_t closed_count = 0;
 
