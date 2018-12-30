@@ -1,5 +1,4 @@
 # Arduino-Controlled 3D Game
-COMP101P Arduino C Programming Coursework
 
 A coursework project implemented as part of the COMP101P course on *Principles 
 of Programming in C*, consisting of a simple game controlled by an Arduino 
