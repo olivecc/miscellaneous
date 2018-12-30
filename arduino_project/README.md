@@ -1,6 +1,6 @@
 # Arduino-Controlled 3D Game
 
-A coursework project implemented as part of the COMP101P course on *Principles 
+A coursework project implemented as part of the UCL COMP101P course on *Principles 
 of Programming in C*, consisting of a simple game controlled by an Arduino 
 microcontroller.  
 The original documentation is provided below (note that the 'arduino-serial' 
