@@ -11,9 +11,11 @@ The essays are comprised of summaries of the following notable papers from theor
 
 The essays are typeset in LaTeX/BibTeX. One can generate .pdf files with the `pdflatex` and `bibtex` packages with the following:
 
-pdflatex *paper*  
-bibtex *paper*  
-pdflatex *paper*  
-pdflatex *paper*  
+~~~~
+pdflatex paper  
+bibtex paper   
+pdflatex paper    
+pdflatex paper  
+~~~~
 
 Where *paper* is the name of the filename of the .tex/.bib files, excluding their file extensions (e.g. *strassen1969gaussian_report").
