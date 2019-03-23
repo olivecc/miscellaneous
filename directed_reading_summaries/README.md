@@ -1,6 +1,6 @@
 # COMP0007 Directed Reading
 
-Essays written for the COMP0007 'Directed Reading' module at UCL. These represent my first foray into formal typesetting, and as a result are a little rough around the edges.  
+Essays written for the COMP0007 'Directed Reading' module at UCL. These represent my first foray into formal typesetting, and as a result are a little rough around the edges (although the hard limit of 4 pages per summary didn't help either).  
 The essays are comprised of summaries of the following notable papers from theoretical computer science (listed in the order in which I wrote their respective summaries):  
 
 * *Gaussian Elimination is not Optimal*, V. Strassen
