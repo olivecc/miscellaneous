@@ -1,0 +1,264 @@
+\documentclass[11pt]{article}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{amssymb} 
+\usepackage{enumitem}
+\usepackage[fleqn]{amsmath} 
+\usepackage{array}
+\usepackage{bussproofs}
+\usepackage{textgreek}
+\usepackage{url}
+
+
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+  \OLDthebibliography{#1}
+  \setlength{\parskip}{0pt}
+  \setlength{\itemsep}{0pt}
+}
+%https://texfaq.org/FAQ-compactbib.html
+
+\begin{document}
+
+\title{New Directions in Cryptography: Summary}
+\author{Oliver Vecchini} 
+\date{22\textsuperscript{nd} March 2019}
+
+\maketitle
+
+
+\begin{abstract}
+
+        The following is a summary of the contents, context, and consequences
+        of a seminal paper in theoretical computer science, namely '\textit{New
+        Directions in Cryptography}', written by B. W. Diffie and M. E. Hellman
+        and published in 1976 \cite{diffie1976new}. It is submitted as part of
+        the assessed coursework component of the COMP0007 \textit{Directed
+        Reading} module at UCL.
+
+\end{abstract}
+
+
+
+\section{Background}
+
+Prior to the late 1970s, the task of secure communication over insecure channels
+between two parties would have been achieved by one of many crytographic schemes
+(common choices included the Lucifer and DES ciphers \cite{delfs2007symmetric}).
+Regardless of choice, any scheme would invariably follow the same base 
+protocol of \textit{secret-key encryption}, whose security relied on a
+secret key being known to the two parties and those two \textit{only}. During
+this period, the only way of achieving this would be generation of the key by
+one, and transmission of it to the other over a secure channel; the existence of
+a secure channel would seem to render the system redundant. In practice, the key
+could be transmitted over an impractical but secure channel, and used several
+times for secret-key encryption over an insecure channel, although this re-use
+undermines security (for instance with the \textit{one-time pad}, the only
+cipher in common use capable of unbreakable theoretical security, but reliant
+on the key never being re-used \cite{delfs2007symmetric}).
+\par
+While the terminology of \textit{public-key} cryptography was introduced by
+Diffie and Hellman's paper, many of the concepts it describes had been derived
+earlier by others. By 1975, R. C. Merkle had derived the notion of exchanging a
+key between two parties securely over an insecure channel, with cryptanalysis
+rendered ineffective not due to its theoretical impossibility but its
+computational infeasability, as well as providing an instance of one such scheme
+\cite{merkle1978secure}; however, due to publication delays, his work was
+published \textit{after} Diffie and Hellman's (interestingly, the first
+publication of Merkle's paper was edited by R. L.  Rivest, one of the inventors
+of the RSA public-key cipher, whose publication paper itself cites Merkle's
+\cite{rivest1978method}). While theoretically significant, the scheme described
+in his paper (later coined \textit{Merkle's Puzzles}) was unsuitable for
+practical use; cryptanalysis of the scheme, while an inconvenience for an
+attacker, was definitely tractable, while attempts at increasing security
+required increasing channel bandwidth to unusable levels. 
+\par
+Prior even to this, researchers at GCHQ had not only proven the existence of a
+scheme matching the description of public-key encryption, but had also derived
+the exact procedures of the schemes later known as Diffie-Hellman key exchange
+and the RSA cryptosystem, all realised in the 1970s prior to the publication of
+Diffie and Hellman's paper, but not declassified until 1997
+\cite{ellis1987story}.
+
+
+\section{Contents of the article}
+
+The authors begin by expressing the increasing importance of advancements in
+cryptography, given the expansion of contemporary computer networks. An outline
+of cryptographic convention until then is presented, outlining the operation of
+secret-key cryptography, and the problems of privacy (assuring a sender that
+only a particular party \textit{receives} a message) and one-way authentication
+(assuring a recipient that only a particular party could have \textit{sent} a
+message). Preference is expressed towards \textit{block} ciphers over
+\textit{stream} ciphers (operating over messages totally and piecemeal
+respectively), as minor changes in plaintext effect major changes in ciphertext
+(\textit{error propogation}); this has benefits for authentication, preventing
+attackers from splicing previous valid ciphertext into their own 'valid'
+ciphertext.
+\par
+The novel material concept of the paper is the notion of \textit{public-key
+cryptography}, motivated by the fact that with contemporary networks growing so
+quickly, it would soon become impractical to establish a secure channel for
+every pair of communicating parties; it would be preferable to communicate
+exclusively over normal (but insecure) channels using public information to
+establish private communications. Two possible schemes satisfying this are
+shown, namely \textit{public-key cryptosystems} (PKCs) and \textit{public-key
+distribution systems} (PKDs) introduced under the context of message privacy
+(although PKCs are shown to relate to authentication as well). PKCs are defined
+formally as sets of pairs of algorithms \( E_k, D_k \) for variable (seed) key
+\( k \), which each transform a message into another message such
+that
+\begin{itemize}[noitemsep, nolistsep]
+    \item \( E_k \) is the inverse of \( D_k \),
+    \item \( E_k, D_k \) are computationally feasible for any message,
+    \item Deriving one of \( D_k, k \) from \( E_k \) is generally
+        computationally infeasible, and
+    \item Deriving both \( E_k, D_k \) from \( k \) is computationally feasible.
+\end{itemize}
+As a result, if a party generates \( E_k, D_k \) from some key \( k \), 
+\( E_k \) can be freely published to some publicly-available trusted repository
+over a secure channel (as a 'public key'), needing only to keep \( D_k \) secret
+(as a 'private key'). To send a private message, a sender can use the public key
+of the intended recipient to encrypt it, and send the ciphertext to the
+recipient over a normal (insecure) channel; only the recipient can decrypt it
+using their private key. This eliminates the requirement for a secure channel
+between sender and recipient! An example is provided wherein \( E_k, D_k \) are
+represented by multiplication of an \( n \)-bit message vector with square
+matrices \( A \) and \( B \) respectively, where \( A, B \) are inverse of
+eachother. Generating two such matrices from a random key \( k \) takes \(
+O(n^2) \) steps, while deriving one from the other takes \( O(n^3) \) steps
+(although the factor of difference between the two is not large enough to yield
+practically viable security). Another example is presented relying on security
+by obscurity of \( E_k \)'s implementation, however this custom is heavily
+frowned upon in modern practice \cite{citkerckhoff}.
+\par
+PKDs cover a somewhat simpler problem, but which remove the requirement of
+secure channels nonetheless. The task is for two parties to reach consensus over
+a key to be used for secret-key encryption without a secure channel; Merkle had
+described the concept before and even provided a solution, although insecure.
+Diffie and Hellman here present a new solution, based on the discrete logarithm
+problem, or specifically the difficulty of calculating the integer \( k \) such
+that for some \( a, b \in \mathbb{F}_p \) and prime \( p \), \( a = b^k \). The
+procedure for each party is:
+\begin{enumerate}[noitemsep, nolistsep]
+    \item Agree with the other party on a prime \( p \) and some 
+        \( \alpha \in \mathbb{F}_p \) over the insecure channel.
+    \item Generate a random integer \( X_i \in \mathbb{F}_p \), which is kept
+        private to the party.
+    \item Calculate \( Y_i = \alpha{}^{X_i} \) and sends it to the other over
+        the insecure channel.
+    \item Calculate the same key across both parties using 
+        \( K = Y_j^{X_i} \) (\( = \alpha{}^{X_iX_j} \)) (\( i \neq j \)).
+\end{enumerate}
+To perform cryptanalysis an attacker needs to derive \( K \) from \( Y_i,Y_j \);
+the best method for this involves taking a discrete logarithm (e.g.  \( K =
+Y_i^{log_\alpha{}Y_j} \)). This takes much longer than discrete exponentiation;
+if the latter takes \( n \) steps, the former takes \( O(e^{cn}) \) steps (for
+constant \( c \neq 0 \)), implying that cryptanalytic effort grows exponentially
+relative to normal use.
+\par
+Formally defining this concept, the authors discuss \textit{one-way functions},
+defined by the property of \textit{preimage resistance} (that is, for most given
+outputs \( y \), it is computationally infeasible to find a value \( x \) that
+maps to \( y \)), while remaining computationally feasible to evaluate.  These
+are useful for storage of authentication information, with an example given in
+the context of login systems with storing password hashes instead of as
+plaintext. For general eavesdropping, the authors note that with a PKC, if a
+party \( X \) encrypts a message with their own private key and publishes the
+result (a \textit{signature}), other parties can decrypt the ciphertext with 
+\( X \)'s public key to get a valid message, showing that only \( X \) could
+have sent it; this scheme produces viable one-way authentication. Other
+solutions are presented using one-way functions, although all are shown to be
+impractical.
+\par
+The authors now link several of the concepts presented thus far to eachother.
+Firstly, it is noted that if a block cipher \( B \) is secure against attackers
+attempting to derive the secret key from any pair of plaintext/ciphertext, then
+a high-quality one-way function \( f \) can be constructed from it such that
+the domain of \( f \) is the keys of \( B \), and \( f \) applied to some 
+\( k \) returns the ciphertext \( C \) generated by encrypting some random
+message \( P \) with \( k \) (trying to infer \( k \) from \( C \) is, by
+security of \( B \), infeasible); properties of this link (and alternative
+constructions) are discussed (in particular the utility of one-way functions in
+reasoning about cryptosystems). For the next connection, the authors coin some
+definitions with relation to PKCs. A \textit{trap-door (one-way) function}
+matches the definition of a one-way function except that, for a given \( y \),
+it is easy to find some \( x \) that maps to \( y \) if certain
+\textit{trap-door information} is known. It is thus clear to consider PKCs as
+(bijective) trap-door functions whose evaluation, and derivation of inverse
+with, and without trap-door information, reflect application of the public key,
+application of the private key, and cryptanalysis respectively (the private key
+\textit{is} the trap-door information). This also illustrates how PKCs can never
+attain perfect theoretical security, as the private key is always uniquely
+derivable from the public key. PKCs can also be used as PKDs (by transmitting a
+chosen key), although the converse is not true; this highlights an interesting
+duality between these two schemes and their underlying primitives, in that PKCs
+are a subset of PKDs, while trap-door functions are a subset of one-way
+functions.
+\par
+Finally, the authors discuss how to apply complexity theory to formally classify
+computational infeasibility. They note the attractive property of
+\textit{NP-complete} problems of being at least as hard as the hardest of
+NP-hard problems (and are thus intractable unless \( P = NP \)). However,
+analysis of these primarily concerns worst-case situations, while cryptographic
+design favours analysis of average-case situations (i.e. security in all
+cases); NP-complete problems are not necessarily intractible in the average
+case. The authors express that a potential method of deriving a good one-way
+function (and thus, a PKC by further adaption into a trap-door function) would
+be to adapt some NP-complete problem such that no algorithm exists to solve the
+problem in polynomial time in the average case, and there exists some algorithm
+to solve the inverse problem in polynomial time for all input. The one-way
+function is then the solution of the inverse problem. An example is given using
+the NP-complete knapsack problem, and adapted to improve average-case
+intractability, with flaws acknowledged. 
+
+
+\section{Legacy}
+The influence of the paper in the field of theoretical computer science has been
+immeasurable, forming the root of an entire discipline of cryptography.  The
+subsequent search for suitable trap-door one-way functions with intractible
+inverses for PKCs bore fruit with the RSA cryptosystem a year later, whose
+security is derived from the difficulty of factorising the product of two prime
+numbers \cite{rivest1978method}. Another family of cryptographic schemes,
+elliptic curve cryptography ('ECC'), uses methods based on the example PKD given
+in the paper (since coined \textit{Diffie-Hellman key exchange}, or 'DH'), with
+the advantage of smaller key size than RSA for the same security
+\cite{lopez2000overview}.  These three schemes underpin the bulk of modern
+public-key cryptography; they form one half of the TLS/SSL security protocol
+(the \textit{de facto} standard for Web encryption, for instance in securing
+HTTPS). Also directly derived from DH and the discrete logarithm problem are the
+ElGamal cryptosystem and the Digital Signature Algorithm ('DSA')
+\cite{dorey2017internet}.
+\par
+One unmentioned problem that would seem to be critical to PKCs is the issue of
+authenticating a public key claiming to correspond to some party. The two chief
+solutions addressing this are the (centralised) \textit{public-key
+infrastructure} model, relying on \textit{certificate authorities} to attest to
+key validity (as used by TLS), and the (decentralised) \textit{web of trust}
+model, where authentic keys are acquired through networks of trusted parties (as
+used by PGP) \cite{dorey2017internet}.
+\par
+As the paper recommends, several PKCs have been derived from NP-complete
+problems, including the Merkle-Hellman knapsack, McEliece, and NTRUEncrypt
+cryptosystems, with trap-door functions based on the knapsack, linear code
+decoding, and shortest vector problem of lattices respectively.  While the first
+of these has been broken, the latter two are distinct for being resistant to
+attack by quantum computers, as all of the previously mentioned problems are
+tractable using these with Shor's algorithm \cite{perlner2009quantum}.
+Otherwise, the suggestion of deriving PKCs from NP-complete problems seems
+unpopular, as many successful schemes use problems that are not even NP-hard
+(such as factorisation in RSA, or the discrete logarithm problem of DH); many
+now consider NP-completeness irrelevant to public-key cryptography
+\cite{papadimitriou1997np}.
+\par
+Separate to the notions of PKCs and PKDs, the paper also stimulated development
+of digital authentication schemes. Schemes developed since then include the
+Rabin and Merkle signature schemes, as well as DSA; however, these all either
+rely on trap-door functions or omit a proof of security. The first scheme not
+reliant on trap-door functions that was proven to be secure was published by M.
+Naor and M. M. Yung in 1989 \cite{naor1989universal}.
+
+{\scriptsize
+\bibliography{diffie1976new_report}
+\bibliographystyle{unsrt}}
+
+\end{document}

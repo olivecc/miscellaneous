@@ -1,0 +1,9 @@
+71/100
+
+Overall, your summary is very good. It demonstrates a satisfactory effort and a good understanding of the paper's aim and impact. You clearly researched related works quite thoroughly and were able to explain their relevance.
+
+
+However, your exposition of the technical content of Hoare's paper (your section 2)  is more limited. While you give the axiom scheme and rules of inference of Hoare logic, you do not explain in your own words what they mean. In addition, some of your claims are not quite correct. For instance you write that "developing a system for proving total correctness would be fruitless". Even if the undecidability of the halting problem implies that no formal system can be used to prove termination of all terminating programs, it does not mean it is fruitless to devise a system for this purpose: this is what Dijkstra's extension with loop variants (which you mention later) achieves. Also, Hoare's axioms for arithmetic are not Peano arithmetic.
+
+
+Finally, your writing style can be quite convoluted at times. Simplifying some of your sentences might make them clearer and easier to parse for the reader. Another point: it seems like you compressed the text (using the Geometry package?) in order to fit within 4 pages. Try to avoid these tricks.

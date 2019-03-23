@@ -1,0 +1,10 @@
+76/100
+
+You have done an excellent job at concisely summarising the main points of Lamport's paper, highlighting key assumptions and  limitations. Furthermore, your presentation of related work is well-structured and thoroughly researched.  
+
+Some minor comments: you conflated Lamport's strong clock condition and the necessary and sufficient clock condition satisfied, for example, by vector clocks. The former is a one-sided implication, not requiring the converse to hold, but which refers to a stronger happened-before relation, able to detect causality violations from additional information outside of the system itself.
+
+You could have expanded the paragraph on physical clocks by  a couple of sentences, explaining that Lamport's algorithm for approximate synchronisation is an adaptation of his logical clock implementation rules.  
+
+Finally, it is Cristian's algorithm, not "Cristiano's"...
+

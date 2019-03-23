@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{amssymb} 
+\usepackage{enumitem}
+\usepackage[fleqn]{amsmath} 
+\usepackage{array}
+\usepackage{textgreek}
+\usepackage{url}
+
+
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+  \OLDthebibliography{#1}
+  \setlength{\parskip}{0pt}
+  \setlength{\itemsep}{0pt}
+}
+%https://texfaq.org/FAQ-compactbib.html
+
+\begin{document}
+
+\title{Time, Clocks, and the Ordering of Events in a Distributed System: 
+       Summary}
+\author{Oliver Vecchini} 
+\date{7\textsuperscript{th} March 2019}
+
+\maketitle
+
+
+\begin{abstract}
+
+        The following is a summary of the contents, context, and consequences of
+        a seminal paper in theoretical computer science, namely '\textit{Time,
+        Clocks, and the Ordering of Events in a Distributed System}', written by
+        L. B. Lamport and published in 1978 \cite{lamport1978time}. It is
+        submitted as a part of the assessed coursework component of the COMP0007
+        'Directed Reading' module at UCL.
+
+\end{abstract}
+
+
+\section{Background}
+
+The 1960s saw growing interest in several concepts that would together later
+come together to form the field of distributed systems. Computers were being
+connected together to form networks, even across long distances; the
+ARPANET connected computers across the U.S. when established in 1969
+\cite{hauben2007history}. Meanwhile, the utility of connecting computers to
+increase throughput was realised at a similar time, with the McROSS air-traffic
+simulator program forming a primitive distributed program by moving across the
+ARPANET and using other computers' idle cycles for calculations to increase
+throughput \cite{Thomas1971mcROSSAM}. 
+\par
+The theoretical study of distributed (or more generally, concurrent) systems
+began with E. W.  Dijkstra's 1965 paper \cite{dijkstra1965solution}, presenting a
+solution to the \textit{mutual exclusion problem}, the crux of which centers on
+ensuring that two concurrent processes do not enter their \textit{critical
+sections} (for instance, access shared resources) at the same time. Dijkstra's
+paper presents the first ever algorithm to solve the problem for an arbitrary
+number of processes (an algorithm for the 2-process case was devised by T. J.
+Dekker several years prior \cite{dijkstra1968cooperating}), a simple
+'busy-waiting' solution wherein each process essentially 'waits its turn' until
+a permission token is free. While this does technically solve the problem, it
+makes the non-trivial assumption that underlying (read-and-write) machine
+operations are atomic; in addition, the target of the allocation of permission
+is randomly determined, and so is neither fair nor starvation-free (i.e. some
+processes may never progress).
+\par
+While other solutions to Dijkstra's problem had since been published, Lamport
+himself wrote a solution in 1974, the 'bakery' algorithm, with several useful
+properties \cite{lamport1974new}. The premise is that successive processes
+attempting to enter the critical section are allocated successively increasing
+numbers, and at any one time only the process with the lowest number may enter
+its critical section. The evident FIFO fairness of the algorithm ensures
+starvation-freedom, however even more significant is that the correctness of the
+algorithm is not reliant on correctness of the value of memory read operations
+when they overlap with memory writes; that is, the algorithm is able to
+implement mutual exclusion without requiring it of the underlying machine
+operations, the first algorithm of its kind to do so. In addition, it allows for
+the failure of individual components without impedance of the others, again a
+new feat.
+\par
+Mutual exclusion is an example of a problem that can be solved with the
+principles of Lamport's paper. Another is the problem of synchronising physical
+clocks; distributed systems often have difficulty even approximately
+synchronising these due to message latency between nodes. Although he cites some
+general techniques observed beforehand \cite{ellingson1973dissemination}, it
+appears that prior to his's paper no explicit (major) algorithm existed for
+synchronising physical clocks between nodes of a distributed system.
+
+\section{Contents of the article}
+
+Lamport begins with some definitions, namely of a \textit{distributed system},
+consisting of processes that are spatially separated and communicate by messages 
+(with the resulting implication that messages take non-zero time to transmit),
+followed by the more formal definition of the \textit{happened-before} relation,
+but not before some preliminary definitions. An \textit{event} represents some
+aspect of execution, such as a machine operation or the sending/receiving of a
+message, and a \textit{process} is defined as a set of events with a total
+ordering of time of occurrence (i.e. a sequence of events). The happened-before
+relation is thus defined as being the smallest relation satisfying the
+following: \( a \rightarrow b \) indicates that the event \( a \) happened
+before the event \( b \) if both are in the same process and \(a\) occurs
+before \(b\), or if \(a\) is the sending of a message and the \(b\)
+is the receipt of that message, with the additional axioms of transitivity and
+irreflexivity, thus forming a (strict) partial ordering. The novelty of this
+relation is that this ordering between events is not based on real time using
+physical clocks, but the ability of one event to influence another; this is
+likened to the notion of causality from special relativity.  
+\par
+Lamport then defines the notion of a \textit{logical clock}, continuing the
+trend of disassociation of events from real time. For each process \( P_i \),
+these are defined as a function of the form \( C_i : Event \rightarrow
+\mathbb{N} \), where \( C \langle a \rangle \) represents the 'logical
+time' or 'timestamp' at which \( a \) occurs, and more closely resembles a
+counter than a physical clock (starting at 0 for the first event of the
+process). The intent of the happens-before relation is expressed by the
+\textit{Clock Condition}, that is, 
+\(
+    if \quad a \rightarrow b \quad 
+    then \quad C \langle a \rangle < C \langle b \rangle
+\).
+To satisfy the Clock Condition, two implementation rules are required
+(each corresponding to the two conditions of the happens-before relation):
+\begin{enumerate}[noitemsep, nolistsep]
+    \item Upon executing an event in \( P_i \), \( C_i \) is incremented by one.
+    \item When a message \( m \) is sent from \( P_i \) to \( P_j \) (as event
+        \(a\) in \(P_i\)),
+        \begin{enumerate}[noitemsep, nolistsep]
+            \item Timestamp \( T_m = C_i \langle a \rangle \) is included in 
+                \( m \).
+            \item \( C_j \) is assigned the value of \( max(C_j, T_m) \).
+        \end{enumerate}
+\end{enumerate}
+These implementations rules (and the clocks they form) are then used to provide
+a method for constructing a total ordering of all events across all processes in
+the system, namely by using an augmented version of the happened-before relation
+such that, for events \( a,b \) in processes \( P_i,P_j \) respectively, 
+\(
+    a \Rightarrow b \quad iff 
+        \quad (C_i \langle a \rangle < C_j \langle b \rangle \ or \ 
+        (C_i \langle a \rangle = C_j \langle b \rangle \ and \ P_i < P_j )) 
+\),
+for some arbitrary total ordering on processes (at the detriment of fairness),
+for instance by process ID.
+\par
+Lamport illustrates the utility of totally orderering all events in a
+distributed system by providing an algorithm to solve a synchronisation problem,
+namely the mutual exclusion problem in the context of a distributed system. The
+gist of the algorithm is based on the principles of the FIFO 'bakery' algorithm
+presented earlier, with availability-checking replaced by processes sending
+request/release messages to eachother to request entrance of the critical
+section; the validity of the messaging system is provided by the total ordering
+provided by the logical clocks. By assuming that all messages sent by each
+process are received by their recipients in the same order, and also that all
+messages eventually arrive, Lamport claims the correctness of the protocol he
+presents (not displayed here for brevity's sake; please refer to the fourth page
+of \cite{lamport1978time}).
+\iffalse
+\par
+Firstly, each process has an acknowledgement counter for counting the number of
+processes aware of that process's critical section request, and a priority queue
+for storing request messages, initially containing only \( (0,P) \) for some
+random process P, indicating that P has initial permission to enter its critical
+region; the ordering of the priority queue \( \Rightarrow \) on each message's
+sender process. From there, 
+\begin{enumerate}[noitemsep, nolistsep]
+    \item When a process \( P_i \) attempts to enter a critical section,
+    \begin{enumerate}[noitemsep, nolistsep]
+        \item \( P_i \) sends a request message containing timestamp \( T_m \)
+            to all other processes, and adds \( (T_m:P_i) \) to its request
+            queue.
+        \item A process \( P_j \) receives the request message and places it on
+            its own request queue, sending an acknowledgement message to 
+            \( P_i \) with timestamp \( T_{m'} \).
+        \item \( P_i \) receives the acknowledgement message (where \( T_{m'} >
+            T_m \) and increments its acknowledgement counter by one.
+    \end{enumerate}
+    \item A process \( P_i \) is allowed to enter its critical section if
+    \begin{enumerate}[noitemsep]
+        \item The head of its request queue is \( (T_m:P_i) \), and 
+        \item All other processes have sent acknowledgement messages with
+            timestamp greater than that of the original request message (i.e.
+            the acknowledgement counter is at \( N-1 \) for \( N \) processes
+            in the system).
+    \end{enumerate}
+    \item When a process \( P_i \) exits a critical section,
+    \begin{enumerate}[noitemsep]
+        \item \( P_i \) removes any request messages of form \( (T_m:P_i) \)
+            from its request queue and sends all processes a release message
+            with timestamp \( T_{m'} \).
+        \item A process \( P_j \) receives the release message and removes any
+            request message of form \( (T_m:P_i) \) from its own request queue.
+    \end{enumerate}
+\end{enumerate}
+\fi
+Lamport proceeds to verify correctness of the protocol, and comments on it,
+noting that the synchronisation of the processes is akin to the parallel
+execution of a particular State Machine with the same sequence of commands
+(request/release messages), and thus the power of this mechanism in being able
+to implement any system as a distributed system. He also notes the lack of
+robustness, in that the failure of one process halts the entire system.
+Regardless, the solution presented also provides starvation-freedom.
+\par
+A flaw of logical clocks is discussed, namely that expected orderings of events
+(e.g. based on order of occurrence in real time) may be inconsistent with a
+(logically valid) ordering given by \( \Rightarrow \). The two discussed
+solutions are firstly to allow the explicit indication to the system of potential for
+causality between two events, and secondly to expand \( \rightarrow \) and the
+Clock Condition to account for non-system events such that \( a \mapsto b \)
+\textit{iff} \( a \) causally occurred before \( b \) (the 'Strong Clock
+Condition'), clearly impossibly by logical clocks alone.
+\par
+To address this, the principles discussed so far are expanded to consider
+physical clocks, as well as to provide an algorithm for approximate
+synchronisation of physical clocks in a distributed system, seemingly a first of
+its kind. Concisely, he states that if the rate of communications and the delay
+of messages can be controlled, then the 'drift' of two physical clocks can be
+concretely controlled by an upper bound \(\epsilon\).
+
+
+\section{Legacy}
+
+The area of distributed systems has greatly expanded since the development of
+the ARPANET into the modern internet; while generally widespread, powerful 
+examples include SETI@home, with multiple petaFLOPS of computational capacity
+expendable \cite{anderson2002seti}. Lamport's logical clocks have seen
+widespread use through distributed systems; again, while generally omnipresent,
+modern prominent examples would include Google's Paxos consensus protocol
+\cite{lamport2001paxos}, and Amazon's Dynamo distributed database (in the form
+of the vector clocks described below) \cite{decandia2007dynamo}. Expansions have
+made to the three major concepts of Lamport's paper, namely the logical clocks
+system, the distributed mutual exclusion algorithm, and the physical clock
+synchronisation algorithm; these are listed below.
+\par
+Lamport's logical were extended to the notion of \textit{vector clocks} in 1987
+\cite{fidge1987timestamps}, forming a more powerful mechanism for
+synchronisation. Here, clocks instead take the form \( C_i : Event \rightarrow
+\mathbb{N}^P \), where the number of processes in the system is \( P \). Each
+process is assigned a vector clock, where \( V_i[i] \) is the number of events
+passed in \( P_i \), and \( P_i[j] \quad (i \neq j) \) is \( P_i \)'s knowledge of the
+number of events passed in \( P_j \). As it turns out, there exist
+implementation rules that allow vector clocks to satisfy the Strong Clock
+Condition; these rules are:
+\begin{enumerate}[noitemsep, nolistsep]
+    \item Upon executing an event in \( P_i \), \( V_i[i] \) is incremented by
+        one.
+    \item When a message \( m \) is sent from \( P_i \) to \( P_j \),
+    \begin{enumerate}[noitemsep, nolistsep]
+        \item Timestamp \( T_m = V_i \) is included in \( m \).
+        \item For all \( 1 < k < P \), \( V_j[k] \) is assigned the value
+            \( max(V_j[k], T_m[k]) \).
+    \end{enumerate}
+\end{enumerate}
+\par
+The distributed mutual exclusion problem has seen many further solutions since
+Lamport's first provision. Several expand directly upon his work: the
+Ricart-Agrawala algorithm reduces message complexity by merging the release and
+request-acknowledgement messages into a 'reply' message (since a request will
+only ever be granted when another process exits its critical section, that
+process's release message might as well include its acknowledgement of the other
+process's request); the Roucairol-Carvalho optmization allows a process to leave
+and re-enter its critical section multiple times until it sends the appropriate
+reply message to other requests; and the Maekawa algorithm reorganises processes
+into request sets (\textit{quorums}) and uses other messages to reduce message
+complexity to a factor of \( \sqrt{N} \) for \( N \) processes, although with
+large constant coefficients. Other approaches also exist that avoid Lamport's
+timestamp mechanism \cite{velazques1993survey}.
+\par
+Lamport himself made further contributions to the study of physical clock
+synchronisation, providng more algorithms and also showing that at least 4
+clocks are required for indvidual-fault tolerance in synchronisation
+\cite{lamport1985synchronizing}. Other examples include Cristiano's algorithm,
+the Clegg-Marzullo algorithm, and many others; however a large number of these
+rely on central time-servers, as opposed to the 'decentralized' style of
+Lamport's \cite{clegg1996clock}.
+
+
+\bibliography{lamport1978time_report} 
+\bibliographystyle{unsrt}
+
+\end{document}

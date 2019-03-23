@@ -1,0 +1,8 @@
+74/100
+
+You have delivered an excellent summary. You showed a good understanding of the paper's context, aim and impact.  Furthermore, your discussion of the paper's legacy demonstrates a good level of research into related work.
+
+A few minor points could have improved your summary:
+- Even though it is clear from your summary that you understand structural induction, an example of its use to prove the correctness of a simple program would have been appreciated. 
+- Your claim that "functional programming is now the dominant paradigm of program verification" is exaggerated. Most formal verification tools used in industry do not work with types to check properties of programs. Of course this point could be (and is) debated endlessly but if you make such a claim, you should at least have a reference to back it up.
+- You sometimes go over references a bit quickly. A more extensive explanation of how some of the work you cite is related to Burstall's paper would have been appreciated. For example, why are Coq and Isabelle inspired by this line of work? You could also explain that they are primarily theorem provers and rely on dependent types, a more expressive logic that not only allows to prove properties of programs that manipulate more complex data structures, but even permits fully formal implementations of Burstall's structural induction proofs as programs themselves. (This is just indicative of the sort of explanation that could be given. Anything along these lines that clearly shows why the work is relevant here would also work).

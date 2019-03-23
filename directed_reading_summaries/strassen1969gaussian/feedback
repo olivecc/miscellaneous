@@ -1,0 +1,9 @@
+73/100
+
+You delivered an excellent summary. It highlights the main points of Strassen’s paper, but also some important side remarks, such as the effectiveness only for matrices of large order and the relationship of matrix multiplication with other operations in linear algebra. Your summary also shows a certain degree of personal research in fetching related work and understanding its relevance.
+
+There is room for improvement in the precision and choice of your terminology. For instance, the formula for matrix multiplication is not by itself an algorithm, and it’s unclear what you mean by Gaussian elimination being ‘equivalent’ to matrix multiplication on page 2. Beginning of Section 2 is also a bit convoluted. 
+
+Also, remember to always support your claims with references. For instance, in the first page when you write “It was long known” and “It was long assumed”.
+
+A last note on style: try to write sentences with less subordinate clauses, and never nest round parentheses. Finally, it is inappropriate to assume that Strassen was unable to write out the induction proof in full. He chose not to, preferring a more concise exposition. 

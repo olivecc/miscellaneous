@@ -1,0 +1,284 @@
+\documentclass[11pt]{article}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{amssymb} 
+\usepackage[fleqn]{amsmath} 
+\usepackage{array}
+\usepackage{bussproofs}
+\usepackage{url}
+
+%https://tex.stackexchange.com/a/214014
+\newenvironment{bprooftree}
+  {\leavevmode\hbox\bgroup}
+  {\DisplayProof\egroup}
+
+\linespread{0.6}
+
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+  \OLDthebibliography{#1}
+  \setlength{\parskip}{0pt}
+  \setlength{\itemsep}{0pt}
+}
+%https://texfaq.org/FAQ-compactbib.html
+
+\begin{document}
+
+\setlength{\abovedisplayskip}{4pt}
+\setlength{\belowdisplayskip}{7pt}
+\setlength{\abovedisplayshortskip}{4pt}
+\setlength{\belowdisplayshortskip}{7pt}
+
+\title{An Axiomatic Basis for Computer Programming: \\Summary} 
+\author{Oliver Vecchini} 
+\date{31\textsuperscript{st} January 2019}
+
+\maketitle
+
+
+\begin{abstract}
+
+        The following is a summary of the contents, context, and consequences of
+        a seminal paper in theoretical computer science, namely '\textit{An
+        Axiomatic Basis for Computer Programming}', written by C. A. R. Hoare in
+        1969 \cite{hoare1969axiomatic}. It is submitted as a part of the
+        assessed coursework component of the COMP0007 'Directed Reading' module
+        at UCL.
+
+\end{abstract}
+
+
+\section{Background}
+
+While it may seem apparent that the history of program correctness should go as
+far back as the history of computer programming itself, even a short review of
+history would appear to indicate otherwise. The first ever program written for
+a stored-program computer, written by J. Von Neumann to illustrate usage of the
+EDVAC (the first stored-program computer to be designed), itself contained
+errors and did not work as intended: neither did the first non-trivial program
+executed on the EDSAC (analogous to the  EDVAC) despite being written by the
+lead of the EDSAC construction team M. V.  Wilkes.  Wilkes later came upon the
+realization that 'a good part of the remainder of [his] life was going to be
+spent in finding errors in [his] own programs' \cite{hayes1993discovery}. 
+\par
+The ease of writing error-ridden programs did not subside after this, however;
+programming errors only increased in frequency and cost through to the 1960s,
+with a notable example being the failure of the guidance systems of the
+\textit{Mariner 1} spacecraft in 1962 due to a programming error, causing the
+destructive abortion of its flight and over \$18.5 million in costs
+(equivalent to over \$150 million in 2019) \cite{nytimesmariner}. The situation
+was improving, with symbolic high-level programming languages mitigating errors;
+however, the merits of structured programming were still hotly debated, with E.
+W. Dijkstra's seminal letter naming the concept appearing only in 1968
+\cite{dijkstra1968letters}; potentially dangerous programming constructs such as
+jumps (explicitly noted by Hoare as difficult to reason about
+\cite{hoare1969axiomatic}) remained in common use. 
+\par 
+It is interesting to examine the 'lineage' of papers addressing program
+verification written before Hoare's own. Program verification was not a commonly
+examined field of computer science, perhaps because of A. M. Turing's
+demonstration that proving termination (and thus, total correctness) of a
+general program was impossible \cite{turing1937computable}; however, J. McCarthy
+set clear goals for the topic in 1961 (discussion reserved for next paper, where
+content is more relevant). Several years later, two papers were written
+independently by P. Naur \cite{naur1966proof} and R. W. Floyd
+\cite{floyd1967assigning}, and published within a short period of eachother,
+with striking similarity. Naur detailed an informal proof system of annotating
+real programs (written in ALGOL 60) with informal statements about the
+computer's state between each statement of the program, dubbed 'General
+Snapshots' (akin to the \textit{inductive assertions} of the Hoare method);
+however, no formal logical basis is given, and axioms/inference rules
+are omitted from the 'proofs' (although triples of pre/postconditions and
+programs are included, akin to those found in Floyd's and Hoare's papers). On
+the other hand, Floyd details a system almost identical to that proposed in
+Hoare's paper, complete with formal predicate logic and axioms/inference rules
+(including the concept of the loop invariant), but tailored to flowcharts
+instead of textual programs. Floyd's intention of the paper was more of an
+incentive for development of machine-independent semantics (which would allow
+proofs of this kind) rather than the development of an actual proof system. 
+\par
+All of the above are cited by Hoare as influences on his paper, but of
+additional interest are papers written before even the earliest of these
+reflecting the same sentiments. Von Neumann and H. H. Goldstine, in
+writing the first 'textbook' of computation in the U.S.
+\cite{goldstine1947planning}, describe several algorithms, each in terms of
+flowcharts (indeed, the first ever application of these to programming); they
+annotate the edges of these with 'assertions', as well as approximately
+describing an inference rule for deriving these across edges. While serving as
+more of a side-note than of the main body of the paper, it illustrates the
+consideration of algorithm correctness well before the previously cited
+material. Another paper with similar material was penned by Turing in 1949
+\cite{turing1989checking}; however, the assertions, while fairly formal, were
+neither expressed in a particular logic, nor had strict rules of inference to
+connect them across program statements. 
+\par
+
+\section{Contents of the article}
+
+In his paper \cite{hoare1969axiomatic}, Hoare builds upon the work of his peers
+to provide a practical system for proving properties of programs: specifically,
+one both relevant to text-based procedural programming languages
+\cite{naur1966proof} and based in formal (here, predicate) logic
+\cite{floyd1967assigning}. Hoare states that the goals of this are to not only
+to provide such a system for its application alone, but also to provide impetus
+for programming languages of the time to properly (i.e. axiomatically) define
+the semantics of various parts of the language, at a time when many of these
+were implementation-defined. 
+\par
+Hoare first defines a small set of axioms to describe Peano arithmetic on
+non-negative integers in the context of computation (adapted from A. van
+Wijngaarden \cite{van1966numerical}), generalised to abstract particulars of
+implementation. Hoare then notes that the result of a program can be expressed
+with assertions regarding the values of variables, after the program has
+executed; to use this as a tool in proving properties of program, Hoare
+describes a construct consisting of precondition, program, and postcondition 
+(written in modern texts as \textit{Hoare triples}) expressed in the form $
+\{P\} S \{Q\} $, where S is a program, and P and Q are statements formed of
+predicate logic combined with the axioms of computer arithmetic, representing
+the pre- and post-conditions respectively. These Hoare triples express the
+notion that if P is true before executing S, then R will be true upon completion
+of S. Hoare stresses the '\textbf{upon completion}' requirement, as developing a
+system for proving total correctness would be fruitless (as corollary of the
+halting problem), hence Hoare focuses on a general system for partial
+correctness.
+\par
+Hoare then defines the axiom (schema) $D0$, expressed here (in modern syntax):
+\[
+    \begin{bprooftree}
+        \LeftLabel{$D0$}
+        \AxiomC{}
+        \UnaryInfC{$ \vdash \{A[a/x]\} S \{A\} $}
+    \end{bprooftree} 
+\]
+
+As well as the rules of inference $D1$, $D2$, and $D3$ (ditto): 
+
+\[
+    \noindent\begin{tabular}{l c r}
+        \begin{bprooftree}
+            \LeftLabel{$D1_a$}
+            \AxiomC{$ \vdash P \implies P' $}
+            \AxiomC{$ \vdash \{P'\} S \{Q\} $}
+            \BinaryInfC{$ \vdash \{P\} S \{Q\} $}
+        \end{bprooftree} 
+        &
+        \begin{bprooftree}
+            \LeftLabel{$D1_b$}
+            \AxiomC{$ \vdash Q \implies Q' $}
+            \AxiomC{$ \vdash \{P\} S \{Q\} $}
+            \BinaryInfC{$ \vdash \{P\} S \{Q'\} $}
+        \end{bprooftree} 
+        \\[1cm]
+        \begin{bprooftree}
+            \LeftLabel{$D2$}
+            \AxiomC{$       \vdash \{P\} S_1 \{Q\} $}
+            \AxiomC{$       \vdash \{Q\} S_2 \{R\} $}
+            \BinaryInfC{$   \vdash \{P\} S_1; S_2 \{R\} $}
+        \end{bprooftree} 
+        &
+        \begin{bprooftree}
+            \LeftLabel{$D3$}
+            \AxiomC{$ \vdash \{I \land C\} S \{I\} $}
+            \UnaryInfC{$ \vdash \{I\} $ \textbf{while} $C$ \textbf{do} $S$ $ 
+                       \{\lnot C \land I\} $}
+        \end{bprooftree}
+    \end{tabular}
+\]
+
+Where $D0$ is the \textit{Axiom of Assignment}, $D1$ is the \textit{Rule of
+Consequence} (split into $D1_a$,  pre-condition strengthening, and $D1_b$,
+post-condition weakening), $D2$ is the \textit{Rule of Composition}, and $D3$ is
+the \textit{Rule of Iteration}; these are all taken from Floyd's paper
+\cite{floyd1967assigning}, although $D0$ is 'reversed' in the sense that
+substitution occurs here in the 'backwards' direction. Proofs of program
+properties consist of a sequence of Hoare triples generated with the inference
+rules, as the paper illustrates in an example.
+\par
+Hoare also discusses the benefits of automated program proof other than simply
+producing correct programs. For instance, axiomatically specifying language
+features gives stronger platform-independent guarantees about their behaviour,
+while also explicitly indicating what behaviour \textit{is not} guaranteed,
+making the task of language implementation more lenient; likewise, this concept
+can be applied to the specifying and writing of particular programs/functions 
+and \textit{their} expected behaviour. 
+
+\section{Legacy}
+
+As Hoare notes, his rules of inference can be supplanted with new rules
+corresponding to new constructs, such as \textit{for} loops, \textit{it-else},
+and \textit{skip}, which have all been added to the repertoire of modern Hoare 
+logic. His own rules can also be 'strengthened', for instance as shown by
+Dijkstra in strengthening the $D3$ rule \cite{dijkstra1978guarded}:
+
+\[
+    \noindent\begin{tabular}{l c r}
+        \begin{bprooftree}
+            \LeftLabel{$D3'$}
+            \AxiomC{$ \vdash [I \land C \land t \in D \land t = z] S 
+                    [I \land t \in D \land t < z]$}
+            \UnaryInfC{$ \vdash [I \land t \in D] $ \textbf{while} $C$ 
+                       \textbf{do} $S$ $ [\lnot C \land I \land t \in D] $}
+        \end{bprooftree} 
+    \end{tabular}
+\]
+
+This rule allows termination and hence total correctness to be proven in some
+cases, using the principle of least integers and the well-founded ordering of
+$<$ on $D$ (the change from $\{\}$ to $[]$ reflects the additional
+guarantee of termination). Henceforth the term $t$ and predicate
+$I$ of rule $D3$ are referred to as the \textit{loop variant} and
+\textit{loop invariant}, respectively.
+\par
+It should be noted that the system Hoare proposes (\textit{Hoare logic}) cannot
+automate the process of verifying either termination (corollary of the
+undecidability of the halting problem) or partial verification (corollary of the
+undecidability of non-trivial semantic properties of programs, i.e. Rice's
+theorem \cite{rice1953classes}). However, Hoare logic \textit{does} allow for
+human-assisted automated proofs, where the human assists with establishing loops
+variants and invariants, which can be used to prove termination and partial
+correctness, respectively. There is no guarantee that these are easy to find, or
+even exist; for instance, the solution of whether the formula of the Collatz
+conjecture terminates is dependent on finding a suitable loop variant (so far
+unachieved \cite{andrei1998collatz}) and for partial correctness, Peano
+arithmetic (and hence Hoare logic, which uses it) is incomplete, and hence there
+exist true statements which cannot be proved.
+\par
+Hoare logic has seen great practical use in the time since its introduction. The
+axiomatic system alone would continue to be used (by Hoare himself) in the
+definition of the Pascal programming language \cite{hoare1973axiomatic}, but the
+proof system would have the most influence, with numerous semi-automatic
+implementations of Hoare logic created soon after, with early examples including
+the Stanford Pascal verifier, Gypsy \cite{brocard2013programming}, and a
+verifier written within the year of Hoare's paper (indeed, by a PhD student of
+Floyd \cite{king1969program}). Separation logic, an extension of Hoare logic
+to allow reasoning about shared mutable data manipulated by pointers
+\cite{reynolds2002separation}, is also commonly used; modern examples of
+verifiers using it include Smallfoot, SpaceInvader, Facebook's Infer (which in
+particular verifies only particular properties about memory access/validity at
+the benefit of full automation) \cite{fbresearch}, and Why3, a verification
+'front-end' that uses SMT solvers to prove programs expressed in Hoare logic
+\cite{filliatre2013why3}.  Prominent automated proofs using separation logic
+include those of the $\mu$C/OS-II \cite{xu2016practical} and seL4
+\cite{seL4_2019} operating system kernels.  Additionally, using the Curry-Howard
+isomorphism between proofs and programs, it has been possible to
+\textit{construct} programs \textit{from} proofs of desired properties,
+expressed in Hoare logic \cite{poernomo2003curry}.
+\par
+Finally, the work of Hoare has spurred further research in verification in
+domains other than Hoare logic; common proof assistants such as Isabelle/HOL and
+Coq, the proof assistant behind the formally verified C compiler CompCert, all
+operate on higher-order logic \cite{myreen2012proof}.
+
+\section{In Review}
+
+It would be unfair to attribute all of what is referred to as 'Hoare logic' to
+this paper alone, given that it mostly just amalgamates the work of his peers as
+noted above; however, given his explicit attribution of a portion of these peers
+(and the possibility of unawareness of the others), added to the clarity of the
+system he sets forth as well as the level of discussion of the benefits of such
+a system, it is understandable that Hoare's paper would be the most
+well-renowned of the collection.
+
+\bibliography{hoare1969axiomatic_report} 
+\bibliographystyle{unsrt}
+
+\end{document}
